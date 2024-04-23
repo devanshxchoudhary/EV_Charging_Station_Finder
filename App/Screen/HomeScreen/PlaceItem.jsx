@@ -1,21 +1,66 @@
-import { View, Text, Image, StyleSheet, Dimensions } from "react-native";
+import {
+  View,
+  Text,
+  Image,
+  StyleSheet,
+  Dimensions,
+  Pressable,
+  ToastAndroid,
+} from "react-native";
 import React from "react";
 import Colors from "../../Utils/Colors";
 import GlobalApi from "../../Utils/GlobalApi";
 import { LinearGradient } from "expo-linear-gradient";
+import { Ionicons } from "@expo/vector-icons";
+import { getFirestore } from "firebase/firestore";
+import { app } from "../../Utils/FirebaseConfig";
+import { doc, setDoc } from "firebase/firestore";
+import { useUser } from "@clerk/clerk-expo";
 
-export default function PlaceItem({ place }) {
+export default function PlaceItem({ place, isFav, markedFav }) {
   const PLACE_PHOTO_BASE_URL = "https://places.googleapis.com/v1/";
+  const { user } = useUser();
+  const db = getFirestore(app);
+
+  const onSetFav = async (place) => {
+    await setDoc(doc(db, "ev-fav-place", place.id.toString()), {
+      place: place,
+      email: user?.primaryEmailAddress?.emailAddress,
+    });
+    markedFav();
+    ToastAndroid.show("Fav Addded", ToastAndroid.TOP);
+  };
   return (
     <View
       style={{
         backgroundColor: Colors.WHITE,
         margin: 5,
         borderRadius: 10,
-        width: Dimensions.get("screen") * width * 0.9,
+        width: Dimensions.get("screen").width * 0.9,
       }}
     >
-      <linearGradient colors={["transparent", "#ffffff", "#ffffff"]}>
+      <LinearGradient colors={["transparent", "#ffffff", "#ffffff"]}>
+        <Pressable
+          style={{ position: "absolute", right: 0, margin: 5 }}
+          onPress={() => onSetFav(place)}
+        >
+          {isFav ? (
+            <Ionicons name="heart-sharp" size={30} color="red" />
+          ) : (
+            <Ionicons name="heart-outline" size={30} color="white" />
+          )}
+        </Pressable>
+
+        <Pressable
+          style={{ position: "absolute", right: 0, margin: 5 }}
+          onPress={() => onSetFav(place)}
+        >
+          {isFav ? (
+            <Ionicons name="heart-sharp" size={30} color="red" />
+          ) : (
+            <Ionicons name="heart-outline" size={30} color="white" />
+          )}
+        </Pressable>
         <Image
           source={
             place?.photo
@@ -69,7 +114,7 @@ export default function PlaceItem({ place }) {
             <FontAwesome name="location-arrow" size={25} color="white" />
           </View>
         </View>
-      </linearGradient>
+      </LinearGradient>
     </View>
   );
 }
