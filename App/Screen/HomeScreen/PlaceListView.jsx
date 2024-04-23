@@ -5,6 +5,7 @@ import { SelectMarkerContext } from "../../Context/SelectMarkerContext";
 import { getFirestore } from "firebase/firestore";
 import { useUser } from "@clerk/clerk-expo";
 import { collection, query, where, getDocs } from "firebase/firestore";
+import { app } from "../../Utils/FirebaseConfig";
 
 export default function PlaceListView({ placeList }) {
   console.log("***", placeList);
@@ -42,11 +43,11 @@ export default function PlaceListView({ placeList }) {
     user && getFav();
   }, [user]);
   const getFav = async () => {
+    setFavList([]);
     const q = query(
       collection(db, "ev-fav-place"),
       where("email", "==", user?.primaryEmailAddress?.emailAddress)
     );
-
     const querySnapshot = await getDocs(q);
     querySnapshot.forEach((doc) => {
       // doc.data() is never undefined for query doc snapshots
@@ -54,6 +55,7 @@ export default function PlaceListView({ placeList }) {
       setFavList((favList) => [...favList, doc.data()]);
     });
   };
+
   const isFav = (place) => {
     const result = favList.find((item) => item.place.id == place.id);
     console.log(result);

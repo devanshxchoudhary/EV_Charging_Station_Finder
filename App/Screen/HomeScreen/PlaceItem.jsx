@@ -6,13 +6,15 @@ import {
   Dimensions,
   Pressable,
   ToastAndroid,
+  Platform,
+  Linking,
 } from "react-native";
 import React from "react";
 import Colors from "../../Utils/Colors";
 import GlobalApi from "../../Utils/GlobalApi";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
-import { getFirestore } from "firebase/firestore";
+import { deleteDoc, getFirestore } from "firebase/firestore";
 import { app } from "../../Utils/FirebaseConfig";
 import { doc, setDoc } from "firebase/firestore";
 import { useUser } from "@clerk/clerk-expo";
@@ -30,6 +32,31 @@ export default function PlaceItem({ place, isFav, markedFav }) {
     markedFav();
     ToastAndroid.show("Fav Addded", ToastAndroid.TOP);
   };
+  const onRemoveFav = async (placeID) => {
+    await deleteDoc(doc(db, "ev-fav-place", placeID.toString()));
+    ToastAndroid.show("Fav Removed!", ToastAndroid.TOP);
+    markedFav();
+  };
+
+  const onDirectionClick = () => {
+    const url = Platform.select({
+      ios:
+        "maps:" +
+        place.location.latitude +
+        "," +
+        place?.location?.longitude +
+        "?q=" +
+        place.formattedAddress,
+      android:
+        "geo:" +
+        place.location.latitude +
+        "," +
+        place?.location?.longitude +
+        "?q=" +
+        place.formattedAddress,
+    });
+    Linking.openURL(url);
+  };
   return (
     <View
       style={{
@@ -40,27 +67,21 @@ export default function PlaceItem({ place, isFav, markedFav }) {
       }}
     >
       <LinearGradient colors={["transparent", "#ffffff", "#ffffff"]}>
-        <Pressable
-          style={{ position: "absolute", right: 0, margin: 5 }}
-          onPress={() => onSetFav(place)}
-        >
-          {isFav ? (
-            <Ionicons name="heart-sharp" size={30} color="red" />
-          ) : (
+        {isFav ? (
+          <Pressable
+            style={{ position: "absolute", right: 0, margin: 5 }}
+            onPress={() => onSetFav(place)}
+          >
             <Ionicons name="heart-outline" size={30} color="white" />
-          )}
-        </Pressable>
-
-        <Pressable
-          style={{ position: "absolute", right: 0, margin: 5 }}
-          onPress={() => onSetFav(place)}
-        >
-          {isFav ? (
+          </Pressable>
+        ) : (
+          <Pressable
+            style={{ position: "absolute", right: 0, margin: 5 }}
+            onPress={() => onRemoveFav(place.id)}
+          >
             <Ionicons name="heart-sharp" size={30} color="red" />
-          ) : (
-            <Ionicons name="heart-outline" size={30} color="white" />
-          )}
-        </Pressable>
+          </Pressable>
+        )}
         <Image
           source={
             place?.photo
@@ -103,7 +124,8 @@ export default function PlaceItem({ place, isFav, markedFav }) {
               {place.evChargeOptions?.connectorCount}
             </Text>
           </View>
-          <View
+          <Pressable
+            onPress={() => onDirectionClick()}
             style={{
               padding: 12,
               backgroundColor: Colors.PRIMARY,
@@ -112,7 +134,7 @@ export default function PlaceItem({ place, isFav, markedFav }) {
             }}
           >
             <FontAwesome name="location-arrow" size={25} color="white" />
-          </View>
+          </Pressable>
         </View>
       </LinearGradient>
     </View>
