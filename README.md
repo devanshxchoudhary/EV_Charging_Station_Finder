@@ -47,5 +47,4 @@ This project is licensed under the [MIT License](LICENSE).
 - [React Native](https://reactnative.dev/)
 - [Google Places API](https://developers.google.com/maps/documentation/places/web-service/overview)
 
-<big>Feel free to customize and expand upon this template to better suit your project's specific requirements and features. Happy coding! 🚀</big>
 
