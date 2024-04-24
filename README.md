@@ -12,7 +12,7 @@ Welcome to EV Charging Station Finder! This React Native application helps users
 ## Installation
 
 1. Clone this repository to your local machine.
-   git clone https://github.com/your-username/EV-Charging-Station-Finder.git
+   git clone https://github.com/devanshxchoudhary/EV-Charging-Station-Finder.git
 
 2. Navigate to the project directory.
    cd EV-Charging-Station-Finder
